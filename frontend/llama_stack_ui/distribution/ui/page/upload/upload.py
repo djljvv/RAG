@@ -494,5 +494,3 @@ def _show_existing_documents_table(vector_db_name, vector_db_obj=None):
         with st.expander("Error Details"):
             st.code(traceback.format_exc())
 
-
-upload_page()

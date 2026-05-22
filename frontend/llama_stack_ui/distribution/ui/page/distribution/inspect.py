@@ -48,5 +48,3 @@ def inspect_page():
     elif selected_resource == "API Providers":
         providers()
 
-
-inspect_page()

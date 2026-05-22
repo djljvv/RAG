@@ -702,5 +702,3 @@ def tool_chat_page():
     if prompt := st.chat_input(placeholder="Ask a question..."):
         process_prompt(prompt, chat_config)
 
-
-tool_chat_page()
