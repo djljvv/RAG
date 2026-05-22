@@ -48,3 +48,7 @@ def inspect_page():
     elif selected_resource == "API Providers":
         providers()
 
+    # Page navigation
+    from llama_stack_ui.distribution.ui.modules.nav import render_bottom_nav
+    render_bottom_nav()
+

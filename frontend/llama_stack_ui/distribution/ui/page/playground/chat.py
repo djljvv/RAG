@@ -85,7 +85,12 @@ def fetch_models_and_tools():
     shields_set = set(shields_list)
 
     # Fetch models, excluding guardrail/shield models
-    models = client.models.list()
+    try:
+        models = client.models.list()
+    except Exception as e:
+        logger.warning("Failed to fetch models: %s", e)
+        st.error("Unable to fetch models from the LlamaStack server. Is the server running?")
+        st.stop()
 
     def _get_model_id(model):
         return getattr(model, "identifier", None) or model.id
@@ -103,8 +108,16 @@ def fetch_models_and_tools():
         if _get_model_type(model) == "llm" and _get_model_id(model) not in shields_set
     ]
 
+    if not model_list:
+        st.warning("No LLM models are available on the server.")
+
     # Fetch and categorize toolgroups
-    tool_groups = client.toolgroups.list()
+    try:
+        tool_groups = client.toolgroups.list()
+    except Exception as e:
+        logger.warning("Failed to fetch toolgroups: %s", e)
+        tool_groups = []
+
     logger.debug("Raw tool groups from LlamaStack: %s", tool_groups)
     tool_groups_list = [tool_group.identifier for tool_group in tool_groups]
     logger.debug("Tool group identifiers: %s", tool_groups_list)
@@ -283,7 +296,11 @@ def render_sidebar_configuration(model_list, builtin_tools_list, mcp_tools_list,
     )
 
     # Vector Database Selection
-    vector_dbs = list(llama_stack_api.client.vector_stores.list() or [])
+    try:
+        vector_dbs = list(llama_stack_api.client.vector_stores.list() or [])
+    except Exception as e:
+        logger.warning("Failed to fetch vector stores: %s", e)
+        vector_dbs = []
     on_vector_db_change, on_toolgroup_change = create_vector_db_callbacks(
         processing_mode, vector_dbs
     )
@@ -397,9 +414,13 @@ def render_vector_db_selector(vector_dbs, processing_mode, on_vector_db_change):
 def initialize_session_state():
     """Initialize session state variables."""
     if "conversation_id" not in st.session_state:
-        conversation = llama_stack_api.client.conversations.create()
-        st.session_state["conversation_id"] = conversation.id
-        logger.debug("Created new conversation: %s", conversation.id)
+        try:
+            conversation = llama_stack_api.client.conversations.create()
+            st.session_state["conversation_id"] = conversation.id
+            logger.debug("Created new conversation: %s", conversation.id)
+        except Exception as e:
+            logger.warning("Failed to create conversation: %s", e)
+            st.session_state["conversation_id"] = None
 
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
@@ -697,6 +718,10 @@ def tool_chat_page():
         prompt = st.session_state.selected_question
         st.session_state.selected_question = None
         process_prompt(prompt, chat_config)
+
+    # Page navigation
+    from llama_stack_ui.distribution.ui.modules.nav import render_bottom_nav
+    render_bottom_nav()
 
     # Handle manual chat input
     if prompt := st.chat_input(placeholder="Ask a question..."):

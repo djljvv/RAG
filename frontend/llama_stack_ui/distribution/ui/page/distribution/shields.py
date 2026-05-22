@@ -14,13 +14,15 @@ def shields():
     Inspect available shields and display details for a selected one.
     """
     st.header("Shields")
-    # Retrieve all shields
-    shields_list = llama_stack_api.client.shields.list()
+    try:
+        shields_list = llama_stack_api.client.shields.list()
+    except Exception as e:
+        st.error(f"Failed to fetch shields: {e}")
+        return
     if not shields_list:
         st.info("No shields available.")
         return
     shields_info = {s.identifier: s.to_dict() for s in shields_list}
 
-    # Let user select and view shield details
     selected_shield = st.selectbox("Select a shield", list(shields_info.keys()))
     st.json(shields_info[selected_shield])

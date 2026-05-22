@@ -6,7 +6,33 @@
 import logging
 
 import streamlit as st
-from streamlit_option_menu import option_menu
+
+from llama_stack_ui.distribution.ui.modules.api import llama_stack_api
+
+
+def check_server_connection():
+    """Check LlamaStack server connectivity and display error if unreachable."""
+    if st.session_state.get("_connection_verified"):
+        return True
+
+    connected, error = llama_stack_api.check_connection()
+    if connected:
+        st.session_state["_connection_verified"] = True
+        return True
+
+    st.error(
+        f"**Unable to connect to the LlamaStack server** at "
+        f"`{llama_stack_api.base_url}`.\n\n"
+        f"Please verify the server is running and the `LLAMA_STACK_ENDPOINT` "
+        f"environment variable is set correctly.",
+        icon="🔌",
+    )
+    with st.expander("Error details"):
+        st.code(error)
+    if st.button("Retry Connection"):
+        st.session_state.pop("_connection_verified", None)
+        st.rerun()
+    return False
 
 
 def main():
@@ -17,54 +43,21 @@ def main():
 
     st.set_page_config(layout="wide", page_title="LlamaStack RAG")
 
+    if not check_server_connection():
+        st.stop()
+
     if "active_page" not in st.session_state:
         st.session_state["active_page"] = "Chat"
 
-    pages = ["Chat", "Upload Documents", "Inspect"]
-    icons = ["chat-dots", "cloud-upload", "search"]
+    active = st.session_state["active_page"]
 
-    selected = option_menu(
-        None,
-        pages,
-        icons=icons,
-        orientation="horizontal",
-        default_index=pages.index(st.session_state["active_page"]),
-        styles={
-            "container": {
-                "padding": "0 !important",
-                "background-color": "transparent",
-                "margin-bottom": "20px",
-            },
-            "icon": {
-                "font-size": "16px",
-            },
-            "nav-link": {
-                "font-size": "15px",
-                "text-align": "center",
-                "margin": "0 4px",
-                "padding": "10px 24px",
-                "border-radius": "8px",
-                "border": "1px solid rgba(128, 128, 128, 0.3)",
-                "--hover-color": "rgba(128, 128, 128, 0.15)",
-            },
-            "nav-link-selected": {
-                "background-color": "rgba(255, 75, 75, 0.85)",
-                "color": "white",
-                "border": "1px solid transparent",
-                "font-weight": "600",
-            },
-        },
-    )
-
-    st.session_state["active_page"] = selected
-
-    if selected == "Chat":
+    if active == "Chat":
         from llama_stack_ui.distribution.ui.page.playground.chat import tool_chat_page
         tool_chat_page()
-    elif selected == "Upload Documents":
+    elif active == "Upload":
         from llama_stack_ui.distribution.ui.page.upload.upload import upload_page
         upload_page()
-    elif selected == "Inspect":
+    elif active == "Inspect":
         from llama_stack_ui.distribution.ui.page.distribution.inspect import inspect_page
         inspect_page()
 
