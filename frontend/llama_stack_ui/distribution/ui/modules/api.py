@@ -17,12 +17,12 @@ class LlamaStackApi:
     def __init__(self):
         # Timeout of 600 seconds (10 minutes) for large document uploads
         # Default is 60 seconds which is too short for large PDFs
-        self.timeout = float(os.environ.get("LLAMA_STACK_TIMEOUT", "600"))
         self.base_url = os.environ.get("LLAMA_STACK_ENDPOINT", "http://localhost:8321")
 
         self.client = LlamaStackClient(
             base_url=self.base_url,
-            timeout=self.timeout,
+            # 10 min timeout for large document uploads (default 60s is too short)
+            timeout=float(os.environ.get("LLAMA_STACK_TIMEOUT", "600")),
             provider_data={
                 "fireworks_api_key": os.environ.get("FIREWORKS_API_KEY", ""),
                 "together_api_key": os.environ.get("TOGETHER_API_KEY", ""),
