@@ -49,6 +49,9 @@ def main():
     if "active_page" not in st.session_state:
         st.session_state["active_page"] = "Chat"
 
+    from llama_stack_ui.distribution.ui.modules.nav import render_top_nav
+    render_top_nav()
+
     active = st.session_state["active_page"]
 
     if active == "Chat":

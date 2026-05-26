@@ -39,7 +39,7 @@ class LlamaStackApi:
             Tuple of (is_connected, error_message). error_message is empty on success.
         """
         try:
-            self.client.health.get()
+            self.client.inspect.health()
             return True, ""
         except Exception as e:
             logger.warning("Connection check failed for %s: %s", self.base_url, e)

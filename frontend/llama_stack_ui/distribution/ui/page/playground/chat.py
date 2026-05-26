@@ -719,10 +719,6 @@ def tool_chat_page():
         st.session_state.selected_question = None
         process_prompt(prompt, chat_config)
 
-    # Page navigation
-    from llama_stack_ui.distribution.ui.modules.nav import render_bottom_nav
-    render_bottom_nav()
-
     # Handle manual chat input
     if prompt := st.chat_input(placeholder="Ask a question..."):
         process_prompt(prompt, chat_config)

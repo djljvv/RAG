@@ -130,9 +130,6 @@ def upload_page():
         st.subheader(f"📁 Upload Documents to '{selected_vector_db}'")
         _show_document_upload_ui(selected_vector_db, selected_vdb_obj)
 
-    # Page navigation
-    from llama_stack_ui.distribution.ui.modules.nav import render_bottom_nav
-    render_bottom_nav()
 
 
 def _show_create_vector_db_ui():
