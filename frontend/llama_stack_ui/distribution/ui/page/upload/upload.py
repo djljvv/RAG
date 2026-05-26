@@ -8,6 +8,7 @@
 
 import traceback
 
+import pandas as pd
 import streamlit as st
 
 from llama_stack_ui.distribution.ui.modules.api import llama_stack_api
@@ -128,6 +129,7 @@ def upload_page():
         _show_existing_documents_table(selected_vector_db, selected_vdb_obj)
         st.subheader(f"📁 Upload Documents to '{selected_vector_db}'")
         _show_document_upload_ui(selected_vector_db, selected_vdb_obj)
+
 
 
 def _show_create_vector_db_ui():
@@ -423,42 +425,14 @@ def _render_documents_table(files, source_names):
         files: List of vector store file objects
         source_names (dict): Mapping of file_id to source name
     """
-    # Add CSS for bordered table rows
-    st.markdown("""
-    <style>
-    div[data-testid="stHorizontalBlock"] {
-        border-bottom: 1px solid #444;
-        padding: 8px 0;
-    }
-    div[data-testid="stHorizontalBlock"]:first-of-type {
-        border-top: 1px solid #444;
-        background-color: rgba(255, 255, 255, 0.05);
-        font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # Display table header
-    col1, col2, col3 = st.columns([0.5, 3, 3])
-    with col1:
-        st.markdown("**#**")
-    with col2:
-        st.markdown("**Source**")
-    with col3:
-        st.markdown("**Document ID**")
-
-    # Display each file in a row
+    rows = []
     for idx, file_obj in enumerate(files, start=1):
-        col1, col2, col3 = st.columns([0.5, 3, 3])
         file_id = getattr(file_obj, 'id', 'unknown')
         source = source_names.get(file_id) or "unknown"
+        rows.append({"#": idx, "Source": source, "Document ID": file_id})
 
-        with col1:
-            st.write(idx)
-        with col2:
-            st.write(source)
-        with col3:
-            st.write(file_id)
+    df = pd.DataFrame(rows)
+    st.dataframe(df, use_container_width=True, hide_index=True)
 
 
 def _show_existing_documents_table(vector_db_name, vector_db_obj=None):
@@ -494,5 +468,3 @@ def _show_existing_documents_table(vector_db_name, vector_db_obj=None):
         with st.expander("Error Details"):
             st.code(traceback.format_exc())
 
-
-upload_page()

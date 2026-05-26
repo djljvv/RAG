@@ -66,7 +66,7 @@ def build_response_tools(toolgroup_selection, selected_vector_dbs, top_k, client
                         })
                         break
             except Exception as e:
-                logger.logger.debug("Failed to get MCP server info for %s: %s", toolgroup_name, e)
+                logger.debug("Failed to get MCP server info for %s: %s", toolgroup_name, e)
         else:
             # For other toolgroups, get individual tools and convert to function format
             try:
@@ -82,7 +82,7 @@ def build_response_tools(toolgroup_selection, selected_vector_dbs, top_k, client
                         }
                     })
             except Exception as e:
-                logger.logger.debug("Failed to get tools for %s: %s", toolgroup_name, e)
+                logger.debug("Failed to get tools for %s: %s", toolgroup_name, e)
 
     return agent_tools
 

@@ -49,4 +49,3 @@ def inspect_page():
         providers()
 
 
-inspect_page()

@@ -14,13 +14,15 @@ def models():
     Inspect available models and display details for a selected one.
     """
     st.header("Models")
-    # Fetch all models
-    model_list = llama_stack_api.client.models.list()
+    try:
+        model_list = llama_stack_api.client.models.list()
+    except Exception as e:
+        st.error(f"Failed to fetch models: {e}")
+        return
     if not model_list:
         st.info("No models available.")
         return
-    models_info = {m.id: m.to_dict() for m in llama_stack_api.client.models.list()}
+    models_info = {m.id: m.to_dict() for m in model_list}
 
-    # Let user select and view a model
     selected_model = st.selectbox("Select a model", list(models_info.keys()))
     st.json(models_info[selected_model], expanded=True)
