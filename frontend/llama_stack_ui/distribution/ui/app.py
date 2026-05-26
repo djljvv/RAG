@@ -3,6 +3,7 @@
 #
 # This source code is licensed under the terms described in the LICENSE file in
 # the root directory of this source tree.
+import importlib
 import logging
 
 import streamlit as st
@@ -49,20 +50,16 @@ def main():
     if "active_page" not in st.session_state:
         st.session_state["active_page"] = "Chat"
 
-    from llama_stack_ui.distribution.ui.modules.nav import render_top_nav
+    from llama_stack_ui.distribution.ui.modules.nav import render_top_nav, get_page_registry
     render_top_nav()
 
     active = st.session_state["active_page"]
+    registry = get_page_registry()
 
-    if active == "Chat":
-        from llama_stack_ui.distribution.ui.page.playground.chat import tool_chat_page
-        tool_chat_page()
-    elif active == "Upload":
-        from llama_stack_ui.distribution.ui.page.upload.upload import upload_page
-        upload_page()
-    elif active == "Inspect":
-        from llama_stack_ui.distribution.ui.page.distribution.inspect import inspect_page
-        inspect_page()
+    if active in registry:
+        module_path, func_name = registry[active]
+        module = importlib.import_module(module_path)
+        getattr(module, func_name)()
 
 
 main()

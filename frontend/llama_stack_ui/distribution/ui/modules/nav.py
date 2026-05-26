@@ -4,10 +4,15 @@ import streamlit as st
 
 
 _NAV_PAGES = [
-    ("Chat", "💬"),
-    ("Upload", "📄"),
-    ("Inspect", "🔍"),
+    ("Chat", "💬", "llama_stack_ui.distribution.ui.page.playground.chat", "tool_chat_page"),
+    ("Upload", "📄", "llama_stack_ui.distribution.ui.page.upload.upload", "upload_page"),
+    ("Inspect", "🔍", "llama_stack_ui.distribution.ui.page.distribution.inspect", "inspect_page"),
 ]
+
+
+def get_page_registry() -> dict:
+    """Return a mapping of page label -> (module_path, function_name)."""
+    return {label: (mod, func) for label, _, mod, func in _NAV_PAGES}
 
 _STICKY_CSS = """
 <style>
@@ -43,7 +48,7 @@ def render_top_nav():
     _, center, _ = st.columns([1, 2, 1])
     with center:
         cols = st.columns(len(_NAV_PAGES))
-        for col, (label, icon) in zip(cols, _NAV_PAGES):
+        for col, (label, icon, *_) in zip(cols, _NAV_PAGES):
             with col:
                 is_active = st.session_state.get("active_page") == label
                 if st.button(
